@@ -210,3 +210,55 @@ def plot_boxplot(ax, sensor_a, sensor_b):
     ax.grid(True, axis='y')
     return None
 
+
+def main(seed=1234):
+    """Generate data and save all plots to disk.
+
+    Parameters
+    ----------
+    seed : int, optional
+        Seed for the random number generator to make results
+        reproducible. Defaults to 1234.
+
+    Returns
+    -------
+    None
+        The function saves PNG files to the working directory and
+        returns nothing.
+    """
+    # Generate data
+    sensor_a, sensor_b, timestamps = generate_data(seed=seed)
+
+    # Scatter: sensors vs time
+    fig, ax = plt.subplots(figsize=(8, 4))
+    plot_scatter(ax, sensor_a, sensor_b, timestamps=timestamps)
+    fig.tight_layout()
+    fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_scatter_time.png')
+    plt.close(fig)
+
+    # Scatter: Sensor A vs Sensor B
+    fig, ax = plt.subplots(figsize=(6, 6))
+    plot_scatter(ax, sensor_a, sensor_b, timestamps=None)
+    fig.tight_layout()
+    fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_scatter_compare.png')
+    plt.close(fig)
+
+    # Histogram
+    fig, ax = plt.subplots(figsize=(8, 4))
+    plot_histogram(ax, sensor_a, sensor_b)
+    fig.tight_layout()
+    fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_histogram.png')
+    plt.close(fig)
+
+    # Box plot
+    fig, ax = plt.subplots(figsize=(6, 6))
+    plot_boxplot(ax, sensor_a, sensor_b)
+    fig.tight_layout()
+    fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_boxplot.png')
+    plt.close(fig)
+
+    print('Saved: sensor_scatter_time.png, sensor_scatter_compare.png, sensor_histogram.png, sensor_boxplot.png')
+
+
+if __name__ == '__main__':
+    main()
