@@ -100,55 +100,113 @@ plt.close()
 
 print('Saved: sensor_scatter_time.png, sensor_scatter_compare.png, sensor_histogram.png, sensor_boxplot.png')
 
-# Create plot_scatter(sensor_a, sensor_b, timestamps, ax) that draws
-# the scatter plot from the notebook onto the given Axes object.
-# NumPy-style docstring. Modifies ax in place, returns None.
+# Helper plotting functions
 
 def plot_scatter(ax, sensor_a, sensor_b, timestamps=None):
-      """Plot a scatter plot of sensor data.
+    """Plot sensor scatter data onto an existing Axes in-place.
 
-      Parameters:
-          ax: The axes on which to plot.
-          sensor_a: Data for sensor A.
-          sensor_b: Data for sensor B.
-          timestamps: Optional timestamps for data points.
+    This function modifies the provided Axes by plotting two scatter
+    series. If ``timestamps`` is provided, it plots each sensor against
+    time; otherwise it plots Sensor A versus Sensor B.
 
-      Returns:
-          None
-      """
-      ax.scatter(sensor_a, sensor_b)
-  ```
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The Axes object to draw onto. Modified in-place; nothing is
+        returned.
+    sensor_a : array_like
+        1-D array of shape (n,) containing Sensor A temperature values
+        in degrees Celsius.
+    sensor_b : array_like
+        1-D array of shape (n,) containing Sensor B temperature values
+        in degrees Celsius.
+    timestamps : array_like, optional
+        1-D array of shape (n,) containing timestamps (seconds). If
+        provided, both sensors are plotted versus time. If ``None``, a
+        scatter of ``sensor_a`` vs ``sensor_b`` is drawn.
 
-● def plot_scatter(ax, sensor_a, sensor_b, timestamps=None): """Plot sensor scatter data onto an existing Axes
-  in-place.
+    Returns
+    -------
+    None
+    """
+    if timestamps is not None:
+        ax.scatter(timestamps, sensor_a, s=20, alpha=0.7, label='Sensor A')
+        ax.scatter(timestamps, sensor_b, s=20, alpha=0.7, label='Sensor B')
+        ax.set_xlabel('Time (s)')
+        ax.set_ylabel('Temperature (°C)')
+        ax.set_title('Sensor readings vs time (scatter)')
+        ax.legend()
+    else:
+        ax.scatter(sensor_a, sensor_b, s=20, alpha=0.7)
+        ax.set_xlabel('Sensor A (°C)')
+        ax.set_ylabel('Sensor B (°C)')
+        ax.set_title('Sensor A vs Sensor B (scatter)')
+        ax.grid(True)
 
-   Parameters
-   ----------
-   ax : matplotlib.axes.Axes
-       The Axes object to draw onto. Modified in-place.
-   sensor_a : array_like
-       1-D array of shape (n,) containing Sensor A temperature values (°C).
-   sensor_b : array_like
-       1-D array of shape (n,) containing Sensor B temperature values (°C).
-   timestamps : array_like, optional
-       1-D array of shape (n,) containing timestamps (seconds). If
-       provided, both sensors are plotted versus time; if None, a
-       scatter of sensor_a vs sensor_b is drawn.
 
-   Returns
-   -------
-   None
-   """
-   if timestamps is not None:
-       ax.scatter(timestamps, sensor_a, s=20, alpha=0.7, label='Sensor A')
-       ax.scatter(timestamps, sensor_b, s=20, alpha=0.7, label='Sensor B')
-       ax.set_xlabel('Time (s)')
-       ax.set_ylabel('Temperature (°C)')
-       ax.set_title('Sensor readings vs time (scatter)')
-       ax.legend()
-   else:
-       ax.scatter(sensor_a, sensor_b, s=20, alpha=0.7)
-       ax.set_xlabel('Sensor A (°C)')
-       ax.set_ylabel('Sensor B (°C)')
-       ax.set_title('Sensor A vs Sensor B (scatter)')
-       ax.grid(True)
+def plot_histogram(ax, sensor_a, sensor_b, bins=20, alpha=0.6):
+    """Plot overlapping histograms of two sensor arrays onto an Axes.
+
+    The function draws two semi-transparent histograms on the given
+    Axes to compare the distributions of Sensor A and Sensor B.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The Axes to draw onto. Modified in-place.
+    sensor_a : array_like
+        1-D array of shape (n,) containing Sensor A temperature values (°C).
+    sensor_b : array_like
+        1-D array of shape (n,) containing Sensor B temperature values (°C).
+    bins : int or sequence, optional
+        Number of histogram bins or bin edges to use (default 20).
+    alpha : float, optional
+        Transparency level for histogram patches (default 0.6).
+
+    Returns
+    -------
+    None
+    """
+    ax.hist(sensor_a, bins=bins, alpha=alpha, label='Sensor A')
+    ax.hist(sensor_b, bins=bins, alpha=alpha, label='Sensor B')
+    ax.set_xlabel('Temperature (°C)')
+    ax.set_ylabel('Count')
+    ax.set_title('Histogram of sensor temperatures')
+    ax.legend()
+    ax.grid(False)
+
+
+def plot_boxplot(ax, sensor_a, sensor_b):
+    """Plot side-by-side boxplots of two sensor arrays onto an Axes.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The Axes to draw onto. Modified in-place.
+    sensor_a : array_like
+        1-D array of shape (n,) containing Sensor A temperature values (°C).
+    sensor_b : array_like
+        1-D array of shape (n,) containing Sensor B temperature values (°C).
+
+    Returns
+    -------
+    None
+    """
+    # Create the boxplot using patch_artist to allow colored boxes if desired
+    bp = ax.boxplot([sensor_a, sensor_b], labels=['Sensor A', 'Sensor B'], patch_artist=True)
+
+    # Optional: style the boxes for better publication-quality appearance
+    try:
+        colors = ['#AAD3DF', '#F6C1C1']
+        for patch, color in zip(bp['boxes'], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(0.8)
+    except Exception:
+        # If matplotlib version doesn't support patch styling in this context, ignore
+        pass
+
+    ax.set_ylabel('Temperature (°C)')
+    ax.set_title('Box plot of sensor temperatures')
+    ax.grid(True, axis='y')
+    return None
+
