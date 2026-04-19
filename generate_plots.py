@@ -265,3 +265,4 @@ fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_analysis.
 plt.close(fig)
 
 print('Saved: sensor_scatter_time.png, sensor_scatter_compare.png, sensor_histogram.png, sensor_boxplot.png, sensor_analysis.png')
+
