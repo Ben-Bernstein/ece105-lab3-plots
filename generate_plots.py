@@ -13,32 +13,40 @@ Usage
 # and timestamps arrays with the same parameters as in the notebook.
 # Use NumPy-style docstring with Parameters and Returns sections.
 
- def generate_data(seed=1234, n=200): """Generate synthetic sensor temperature readings and timestamps.
+import numpy as np  # Required import
 
-   Parameters
-   ----------
-   seed : int
-       Seed for the NumPy random number generator used to produce
-       reproducible synthetic data.
-   n : int
-       Number of samples to generate for each sensor and for the
-       timestamps array.
+def generate_data(seed=1234, n=200):
+    """
+    Generate synthetic sensor temperature readings and timestamps.
 
-   Returns
-   -------
-   sensor_a : numpy.ndarray
-       Array of shape (n,) containing Sensor A temperature readings (°C).
-   sensor_b : numpy.ndarray
-       Array of shape (n,) containing Sensor B temperature readings (°C).
-   timestamps : numpy.ndarray
-       Array of shape (n,) containing timestamps (seconds) uniformly
-       sampled from 0 to 10.
-   """
-   rng = np.random.default_rng(seed)
-   sensor_a = rng.normal(loc=25, scale=3, size=n)
-   sensor_b = rng.normal(loc=27, scale=4.5, size=n)
-   timestamps = rng.uniform(low=0, high=10, size=n)
-   return sensor_a, sensor_b, timestamps
+    Parameters
+    ----------
+    seed : int
+        Seed for the NumPy random number generator used to produce 
+        reproducible synthetic data.
+    n : int
+        Number of samples to generate for each sensor and for the 
+        timestamps array.
+
+    Returns
+    -------
+    sensor_a : numpy.ndarray
+        Array of shape (n,) containing Sensor A temperature readings (°C).
+    sensor_b : numpy.ndarray
+        Array of shape (n,) containing Sensor B temperature readings (°C).
+timestamps : numpy.ndarray
+        Array of shape (n,) containing timestamps (seconds) 
+        uniformly sampled from 0 to 10.
+    """
+    # Create the generator object for reproducibility
+    rng = np.random.default_rng(seed)
+    
+    # Generate data using the generator
+    sensor_a = rng.normal(loc=25, scale=3, size=n)
+    sensor_b = rng.normal(loc=27, scale=4.5, size=n)
+    timestamps = rng.uniform(low=0, high=10, size=n)
+    
+    return sensor_a, sensor_b, timestamps
 
 
 import numpy as np
@@ -100,30 +108,21 @@ plt.close()
 
 print('Saved: sensor_scatter_time.png, sensor_scatter_compare.png, sensor_histogram.png, sensor_boxplot.png')
 
-# Helper plotting functions
-
 def plot_scatter(ax, sensor_a, sensor_b, timestamps=None):
     """Plot sensor scatter data onto an existing Axes in-place.
-
-    This function modifies the provided Axes by plotting two scatter
-    series. If ``timestamps`` is provided, it plots each sensor against
-    time; otherwise it plots Sensor A versus Sensor B.
 
     Parameters
     ----------
     ax : matplotlib.axes.Axes
-        The Axes object to draw onto. Modified in-place; nothing is
-        returned.
+        The Axes object to draw onto. Modified in-place.
     sensor_a : array_like
-        1-D array of shape (n,) containing Sensor A temperature values
-        in degrees Celsius.
+        1-D array of shape (n,) containing Sensor A temperature values (°C).
     sensor_b : array_like
-        1-D array of shape (n,) containing Sensor B temperature values
-        in degrees Celsius.
+        1-D array of shape (n,) containing Sensor B temperature values (°C).
     timestamps : array_like, optional
         1-D array of shape (n,) containing timestamps (seconds). If
-        provided, both sensors are plotted versus time. If ``None``, a
-        scatter of ``sensor_a`` vs ``sensor_b`` is drawn.
+        provided, both sensors are plotted versus time; if None, a
+        scatter of sensor_a vs sensor_b is drawn.
 
     Returns
     -------
@@ -176,89 +175,93 @@ def plot_histogram(ax, sensor_a, sensor_b, bins=20, alpha=0.6):
     ax.grid(False)
 
 
+# Create plot_boxplot(sensor_a, sensor_b, timestamps, ax) that draws
+# the box plot from the notebook onto the given Axes object.
+# NumPy-style docstring. Modifies ax in place, returns None.
+import matplotlib.pyplot as plt
+
 def plot_boxplot(ax, sensor_a, sensor_b):
-    """Plot side-by-side boxplots of two sensor arrays onto an Axes.
-
-    Parameters
-    ----------
-    ax : matplotlib.axes.Axes
-        The Axes to draw onto. Modified in-place.
-    sensor_a : array_like
-        1-D array of shape (n,) containing Sensor A temperature values (°C).
-    sensor_b : array_like
-        1-D array of shape (n,) containing Sensor B temperature values (°C).
-
-    Returns
-    -------
-    None
     """
-    # Create the boxplot using patch_artist to allow colored boxes if desired
-    bp = ax.boxplot([sensor_a, sensor_b], labels=['Sensor A', 'Sensor B'], patch_artist=True)
-
-    # Optional: style the boxes for better publication-quality appearance
-    try:
-        colors = ['#AAD3DF', '#F6C1C1']
-        for patch, color in zip(bp['boxes'], colors):
-            patch.set_facecolor(color)
-            patch.set_alpha(0.8)
-    except Exception:
-        # If matplotlib version doesn't support patch styling in this context, ignore
-        pass
-
+    Plot side-by-side boxplots of two sensor arrays onto an Axes.
+    """
+    # Create the boxplot using patch_artist to allow colored boxes
+    bp = ax.boxplot([sensor_a, sensor_b], 
+                    labels=['Sensor A', 'Sensor B'], 
+                    patch_artist=True)
+    
+    # Style the boxes for a cleaner, publication-quality appearance
+    colors = ['#AAD3DF', '#F6C1C1']
+    
+    # Zip color and box artists
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.8)
+        
     ax.set_ylabel('Temperature (°C)')
     ax.set_title('Box plot of sensor temperatures')
     ax.grid(True, axis='y')
+    
     return None
 
 
-def main(seed=1234):
-    """Generate data and save all plots to disk.
 
-    Parameters
-    ----------
-    seed : int, optional
-        Seed for the random number generator to make results
-        reproducible. Defaults to 1234.
+# Create main() that generates data, creates a 1x3 subplot figure,
+# calls each plot function, adjusts layout, and saves as sensor_analysis.png
+# at 150 DPI with tight bounding box.
+def main(seed=1234): """Generate data and save all plots to disk.
 
-    Returns
-    -------
-    None
-        The function saves PNG files to the working directory and
-        returns nothing.
-    """
-    # Generate data
-    sensor_a, sensor_b, timestamps = generate_data(seed=seed)
+   Parameters
+   ----------
+   seed : int, optional
+       Seed for the random number generator to make results
+       reproducible. Defaults to 1234.
 
-    # Scatter: sensors vs time
-    fig, ax = plt.subplots(figsize=(8, 4))
-    plot_scatter(ax, sensor_a, sensor_b, timestamps=timestamps)
-    fig.tight_layout()
-    fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_scatter_time.png')
-    plt.close(fig)
+   Returns
+   -------
+   None
+       The function saves PNG files to the working directory and
+       returns nothing.
+   """
+   # Generate data
+sensor_a, sensor_b, timestamps = generate_data(seed=seed)
 
-    # Scatter: Sensor A vs Sensor B
-    fig, ax = plt.subplots(figsize=(6, 6))
-    plot_scatter(ax, sensor_a, sensor_b, timestamps=None)
-    fig.tight_layout()
-    fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_scatter_compare.png')
-    plt.close(fig)
+   # Scatter: sensors vs time
+fig, ax = plt.subplots(figsize=(8, 4))
+plot_scatter(ax, sensor_a, sensor_b, timestamps=timestamps)
+fig.tight_layout()
+fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_scatter_time.png')
+plt.close(fig)
 
-    # Histogram
-    fig, ax = plt.subplots(figsize=(8, 4))
-    plot_histogram(ax, sensor_a, sensor_b)
-    fig.tight_layout()
-    fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_histogram.png')
-    plt.close(fig)
+   # Scatter: Sensor A vs Sensor B
+fig, ax = plt.subplots(figsize=(6, 6))
+plot_scatter(ax, sensor_a, sensor_b, timestamps=None)
+fig.tight_layout()
+fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_scatter_compare.png')
+plt.close(fig)
 
-    # Box plot
-    fig, ax = plt.subplots(figsize=(6, 6))
-    plot_boxplot(ax, sensor_a, sensor_b)
-    fig.tight_layout()
-    fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_boxplot.png')
-    plt.close(fig)
+   # Histogram
+fig, ax = plt.subplots(figsize=(8, 4))
+plot_histogram(ax, sensor_a, sensor_b)
+fig.tight_layout()
+fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_histogram.png')
+plt.close(fig)
 
-    print('Saved: sensor_scatter_time.png, sensor_scatter_compare.png, sensor_histogram.png, sensor_boxplot.png')
+   # Box plot
+fig, ax = plt.subplots(figsize=(6, 6))
+plot_boxplot(ax, sensor_a, sensor_b)
+fig.tight_layout()
+fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_boxplot.png')
+plt.close(fig)
 
+# Combined analysis plot
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+plot_scatter(axes[0, 0], sensor_a, sensor_b, timestamps=timestamps)
+plot_scatter(axes[0, 1], sensor_a, sensor_b, timestamps=None)
+plot_histogram(axes[1, 0], sensor_a, sensor_b)
+plot_boxplot(axes[1, 1], sensor_a, sensor_b)
+fig.suptitle('Sensor Data Analysis', fontsize=14, fontweight='bold')
+fig.tight_layout()
+fig.savefig(r'C:\Users\bpber\OneDrive\Desktop\ECE105-lab3-plots\sensor_analysis.png')
+plt.close(fig)
 
-if __name__ == '__main__':
-    main()
+print('Saved: sensor_scatter_time.png, sensor_scatter_compare.png, sensor_histogram.png, sensor_boxplot.png, sensor_analysis.png')
